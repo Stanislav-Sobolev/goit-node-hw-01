@@ -11,26 +11,31 @@ async function listContacts() {
 }
 
 async function getContactById(contactId) {
+  const idStringified = contactId.toString();
   const getAll = await listContacts();
 
-  const findContact = await getAll.find((el) => el.id === contactId);
+  const findContact = await getAll.find((el) => el.id === idStringified);
+  if (findContact === undefined) {
+    return null;
+  }
 
-  console.log("findContact", findContact);
   return findContact;
 }
 
 async function removeContact(contactId) {
+  const idStringified = contactId.toString();
   const getAll = await listContacts();
-  const findContact = await getAll.findIndex((el) => el.id === contactId);
+  const findIndexContact = await getAll.findIndex(
+    (el) => el.id === idStringified
+  );
 
-  if (findContact === -1) {
+  if (findIndexContact === -1) {
     return null;
   }
 
-  const [removedContact] = getAll.splice(findContact, 1);
+  const [removedContact] = getAll.splice(findIndexContact, 1);
   await fs.writeFile(contactsPath, JSON.stringify(getAll, null, 2));
 
-  console.log("removedContact", removedContact);
   return removedContact;
 }
 
@@ -38,11 +43,10 @@ async function addContact(name, email, phone) {
   const dataNewContact = { id: nanoid(), name, email, phone };
   const getAll = await listContacts();
 
-  await getAll.push(dataNewContact);
+  getAll.push(dataNewContact);
   await fs.writeFile(contactsPath, JSON.stringify(getAll, null, 2));
 
-  console.log("getAll", getAll);
-  return;
+  return dataNewContact;
 }
 
 module.exports = {
